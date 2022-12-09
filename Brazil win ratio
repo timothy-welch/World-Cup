@@ -1,37 +1,44 @@
 #This is an R script originally written during my time in Stat 20
+install.packages("tidyverse")
+install.packages("languageserver")
+install.packages("patchwork")
+install.packages("lubridate")
 library(tidyverse)
 library(ggplot2)
-library("patchwork")
 library(lubridate)
-install.packages("hrbrthemes")
-library("hrbrthemes")
+library(patchwork)
 library(readr)
 results <- read_csv("results.csv")
 WorldCups<- read_csv("WorldCups.csv")
+view(results)
 #creating columns that determine home win vs. draw vs. away win
 results <- results%>%
   mutate(draw = home_score == away_score, 
         home_win = home_score > away_score,
         away_win = away_score > home_score)
-
+glimpse(results)
 #selecting the columns of interest
 inter_foot <- results%>%
   select(date, home_team, home_win, away_team, away_win, draw, tournament)
 
-#filtering for Brazil, found that they have played over 1,000 games since 1914!
+#filtering for Brazil, found that they have played over 1,000 games since 1914
 brazil <- inter_foot %>%
   filter(home_team == "Brazil"| away_team == "Brazil")
-
+brazil
 #creating column for game results
 brazil_result <- brazil%>%
   mutate(brazil_home_result =  ifelse(home_team == "Brazil" & 
-                                        home_win == "TRUE", "Win", "Not Win"))%>%
-  mutate(brazil_away_result = ifelse(away_team == "Brazil" & 
-                                        away_win == "TRUE", "Win", "Not Win"))%>%
-  mutate(result = ifelse(brazil_home_result == "Win" | brazil_away_result == "Win", 
-                         1, 0))
+  home_win == "TRUE", "Win", "Not Win"))%>%
+  mutate(brazil_away_result = ifelse(
+    away_team == "Brazil" & 
+away_win == "TRUE", "Win", "Not Win"))%>%
+  mutate(result = ifelse(
+  brazil_home_result == "Win" | 
+  brazil_away_result == "Win", 1, 0))
   
-#changing date format and reducing data frame down to date and result and tournament
+#changing date format and reducing data frame 
+#down to date and result and tournament
+
 brazil_result <- brazil_result%>%
   mutate(Date = as.Date(date))%>%
   select(Date, result, tournament)
