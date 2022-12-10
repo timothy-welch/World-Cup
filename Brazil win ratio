@@ -9,82 +9,139 @@ library(lubridate)
 library(patchwork)
 library(readr)
 results <- read_csv("results.csv")
-WorldCups<- read_csv("WorldCups.csv")
-view(results)
+WorldCups <- read_csv("WorldCups.csv")
 #creating columns that determine home win vs. draw vs. away win
-results <- results%>%
-  mutate(draw = home_score == away_score, 
+results <- results %>%
+  mutate(draw = home_score == away_score,
         home_win = home_score > away_score,
         away_win = away_score > home_score)
-glimpse(results)
 #selecting the columns of interest
-inter_foot <- results%>%
+inter_foot <- results %>%
   select(date, home_team, home_win, away_team, away_win, draw, tournament)
-
 #filtering for Brazil, found that they have played over 1,000 games since 1914
 brazil <- inter_foot %>%
-  filter(home_team == "Brazil"| away_team == "Brazil")
-brazil
+  filter(home_team == "Brazil" |
+  away_team == "Brazil")
 #creating column for game results
-brazil_result <- brazil%>%
-  mutate(brazil_home_result =  ifelse(home_team == "Brazil" & 
-  home_win == "TRUE", "Win", "Not Win"))%>%
+brazil_result <- brazil %>%
+  mutate(brazil_home_result =  ifelse(home_team == "Brazil" &
+  home_win == "TRUE", "Win", 
+  "Not Win")) %>%
   mutate(brazil_away_result = ifelse(
-    away_team == "Brazil" & 
-away_win == "TRUE", "Win", "Not Win"))%>%
+    away_team == "Brazil" &
+away_win == "TRUE", "Win", "Not Win")) %>%
   mutate(result = ifelse(
   brazil_home_result == "Win" | 
   brazil_away_result == "Win", 1, 0))
-  
-#changing date format and reducing data frame 
-#down to date and result and tournament
 
+#changing date format and reducing data frame 
+#down to date, results, tournament
 brazil_result <- brazil_result%>%
   mutate(Date = as.Date(date))%>%
   select(Date, result, tournament)
 
 #splitting year into it's own column
-
 brazil_result$year <- year(ymd(brazil_result$Date))
 
 #selecting
-brazil_result <- brazil_result%>%
+brazil_result <- brazil_result %>%
   select(result, year, tournament)
 
-brazil_result
 #calculating win ratio per year
-win_ratio<- brazil_result%>%
-  group_by(year)%>%
-  summarise(total = sum(result), n = n())%>%
-  mutate(win_ratio = total/n)
+win_ratio <- brazil_result %>%
+  group_by(year) %>%
+  summarise(total = sum(result), n = n()) %>%
+  mutate(win_ratio = total / n)
 
 #simple visualization
-win_ratio%>%
-  ggplot(aes(x = year, y = win_ratio))+
+win_ratio %>%
+  ggplot(aes(x = year, y = win_ratio)) +
   geom_line()
-#Filtering World Cup Results
-brazil_wc_wins<-WorldCups%>%
-  filter(Winner == "Brazil")%>%
+#Filtering World Cup Results into 
+#wins, runnerups, and thirds
+brazil_wc_wins <- WorldCups %>%
+  filter(Winner == "Brazil") %>% 
   select(Year)
-
-brazil_wc_ru<-WorldCups%>%
-  filter(`Runners-Up`== "Brazil")%>%
+brazil_wc_ru <- WorldCups %>%
+  filter(`Runners-Up`== "Brazil") %>%
   select(Year)
-
-brazil_wc_third<-WorldCups%>%
-  filter(Third == "Brazil")%>%
-  filter(Year > 1940)%>%
+brazil_wc_third <- WorldCups %>%
+  filter(Third == "Brazil") %>%
+  filter(Year > 1940) %>%
   select(Year)
 
 #Refining visualization
-  plot <- win_ratio%>%
-  filter(year >1940)%>%
-  ggplot(aes(x = year, y = win_ratio))+
-  geom_line(color = "blue", size = .2)+
-  geom_point(shape = 21, color ='black', fill = '#0099ff', size = 2)+
+  plot <- win_ratio %>%
+  filter(year >1940) %>%
+  ggplot(aes(x = year, y = win_ratio)) +
+  geom_line(color = "blue", size = .2) +
+  geom_point(shape = 21, color ='black', 
+  fill = '#0099ff', size = 2) +
   theme_classic()+
   labs(title = "Brazil Win Ratio",
        x = "Year",
        y = "Win Ratio",
        subtitle = "World Cup Champions")
 plot
+
+#Adding in line segments
+plot2 <- plot +
+  geom_segment(x = 1958,
+               y = .8,
+               xend = 1958,
+               yend = 1.05,
+               linetype = "dashed",
+               col = "#336600")+
+  geom_segment(x = 1962,
+               y = .95,
+               xend = 1962,
+               yend = 1.05,
+               linetype = "dashed",
+               col = "#336600")+
+    geom_segment(x = 1970,
+               y = .9,
+               xend = 1970,
+               yend = 1.05,
+               linetype = "dashed",
+               col = "#336600")+
+    geom_segment(x = 1994,
+               y = .8,
+               xend = 1994,
+               yend = 1.05,
+               linetype = "dashed",
+               col = "#336600")+
+    geom_segment(x = 2002,
+               y = .85,
+               xend = 2002,
+               yend = 1.05,
+               linetype = "dashed",
+               col = "#336600")+
+  geom_segment(x = 1950,
+               y = .52,
+               xend = 1950,
+               yend = .6,
+               linetype = "dashed",
+               col = "#336600")+
+  geom_segment(x = 1998,
+               y = .52,
+               xend = 1998,
+               yend = .55,
+               linetype = "dashed",
+               col = "#336600")+
+   geom_segment(x = 1978,
+               y = .42,
+               xend = 1978,
+               yend = .55,
+               linetype = "dashed",
+               col = "#336600")
+plot2
+#adding annotations
+plot2 +  geom_text(data = brazil_wc_wins, 
+                   aes(x =Year, y = 1.07, label = "Champions"), 
+            color = '#336600', size = 2, angle = 30, fontface = "bold")+
+  geom_text(data = brazil_wc_ru, aes(x = Year, y = .5, label = "Runner Ups"),
+            color = '#336600',
+            size = 2, angle = 30, fontface = "bold")+
+  geom_text(data = brazil_wc_third, aes(x = Year, y = .4, label = "Third"),
+            color = '#336600',
+            size = 2, angle = 30, fontface = "bold")               
