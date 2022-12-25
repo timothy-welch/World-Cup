@@ -1,0 +1,86 @@
+library(tidyverse)
+library(ggplot2)
+library(readr)
+shootouts <- WorldCupShootouts
+
+glimpse(shootouts)
+shootouts %>%
+  ggplot(aes(x = Zone, y = Foot)) +
+  geom_boxplot()
+
+#adding column to input shot direction
+shootouts <- shootouts %>%
+  drop_na() %>%
+  mutate(shot_direction = case_when( Zone == 1 ~ "Left",
+                                     Zone == 4 ~ "Left", Zone == 7 ~ "Left",
+                                     Zone == 2 ~ "Center",
+                                     Zone == 5 ~ "Center", Zone == 8 ~ "Center",
+                                     Zone == 3 ~ "Right",
+                                     Zone == 6 ~ "Right", Zone == 9 ~ "Right")) 
+
+#doesn't appear to much of a correlation between shot
+#direction and foot preference
+shootouts %>%
+  ggplot(aes(x = Foot, fill = shot_direction, 
+             y = (..count..)/sum(..count..))) +
+  geom_bar(position = position_fill(reverse = TRUE))+
+  ggtitle("Righties Go Left & Lefties go Right")+
+  theme_bw()+
+  ylab("Proportion")+
+  xlab("Shot Direction")
+
+#adding column for shot height
+shootouts <- shootouts %>%
+  drop_na() %>%
+  mutate(shot_height = case_when( Zone == 1 ~ "High",
+                                  Zone == 4 ~ "Middle", Zone == 7 ~ "Low",
+                                  Zone == 2 ~ "High",
+                                  Zone == 5 ~ "Middle", Zone == 8 ~ "Low",
+                                  Zone == 3 ~ "High",
+                                  Zone == 6 ~ "Middle", Zone == 9 ~ "Low"))
+
+#what about shot height and foot preference?
+shootouts %>%
+  ggplot(aes(x = Foot, fill = shot_height, 
+             y = (..count..)/sum(..count..))) +
+  geom_bar(position = position_fill(reverse = TRUE))+
+  ggtitle("Lefties Go Low")+
+  theme_bw()+
+  ylab("Proportion")+
+  xlab("Shot Direction")
+
+#How successful are goalkeepers at going the right way?
+#Converting R,L,C to mimic shot_direction
+shootouts <- shootouts%>%
+  mutate(gk_direction = case_when(Keeper == "R" ~ "Right", 
+                                  Keeper == "L" ~ "Left",
+                                  Keeper == "C" ~ "Center"))
+
+#creating dummy variable if goalkeeper went right direction
+shootouts <- shootouts %>%
+  mutate(gk_correct = ifelse(gk_direction == shot_direction, "True", "False"))
+
+view(shootouts)
+
+
+#Transforming Goal column to Goal/No Goal
+shootouts <- shootouts %>%
+  mutate(goal = ifelse(Goal== 1, "Goal", "No Goal"))
+
+#Center shots are rarer, but GKs are less likely to save them
+#Also, goalkeepers typically save more shots that go left than right
+shootouts %>%
+  drop_na() %>%
+  filter(OnTarget == 1) %>%
+  ggplot(aes(x = gk_direction, fill = gk_correct)) +
+  geom_bar()+
+  theme_bw()+
+  facet_wrap(~goal)+
+  ggtitle("GKs Rarely Tell When Shooter Is Going Down the Middle",
+          subtitle = "But when they do, they save it every time")+
+  
+  ylab("Proportion")+
+  xlab("Goalkeeper Direction")+
+  labs(fill = "Goalkeeper \nCorrect")
+
+

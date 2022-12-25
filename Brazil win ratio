@@ -1,15 +1,12 @@
-#This is an R script originally written during my time in Stat 20
-install.packages("tidyverse")
 install.packages("languageserver")
-install.packages("patchwork")
-install.packages("lubridate")
 library(tidyverse)
 library(ggplot2)
 library(lubridate)
 library(patchwork)
 library(readr)
-results <- read_csv("results.csv")
-WorldCups <- read_csv("WorldCups.csv")
+results <- read_csv("Data/results.csv")
+WorldCups <- read_csv("Data/WorldCups.csv")
+results
 #creating columns that determine home win vs. draw vs. away win
 results <- results %>%
   mutate(draw = home_score == away_score,
@@ -145,3 +142,4 @@ plot2 +  geom_text(data = brazil_wc_wins,
   geom_text(data = brazil_wc_third, aes(x = Year, y = .4, label = "Third"),
             color = '#336600',
             size = 2, angle = 30, fontface = "bold")               
+plot2
