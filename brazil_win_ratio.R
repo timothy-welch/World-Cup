@@ -181,13 +181,11 @@ roll_plot <- spline_d %>%
   ggplot(aes(x = x,
              y = y)) +
   geom_line(color = "blue", size = .2) +
-  theme_bw() +
+  theme_classic() +
   labs(title = "Brazil Men's National Football Team  Success", 
   subtitle = "7 Year Rolling Point Average",
        x = "Year",
        y = "Point Average")
-
-roll_plot
 
 roll_plot_2 <- roll_plot + 
   geom_segment(x = 1958,
@@ -237,7 +235,8 @@ roll_plot_2 <- roll_plot +
                xend = 1978,
                yend = 2.1,
                linetype = "dashed",
-               col = "#336600") +
+               col = "#336600")
+roll_plot_3 <- roll_plot_2 +            
   geom_text(data = brazil_wc_wins, 
             aes(x =Year, y = 2.9, label = "Champions"),
             color = '#336600', size = 2, angle = 30, fontface = "bold") +
@@ -247,4 +246,4 @@ roll_plot_2 <- roll_plot +
   geom_text(data = brazil_wc_third, aes(x = Year, y = 1.7, label = "Third"),
             color = '#336600',
             size = 2, angle = 30, fontface = "bold")
-roll_plot_2
+roll_plot_3
