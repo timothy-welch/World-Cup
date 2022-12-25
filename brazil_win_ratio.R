@@ -10,9 +10,8 @@ library(zoo)
 library(tidyverse)
 library(lubridate)
 library(patchwork)
-results <- read_csv("/Users/timothywelch/Documents/GitHub/World-Cup/Data/results.csv")
-WorldCups <- read_csv("/Users/timothywelch/Documents/GitHub/World-Cup/Data/WorldCups.csv")
-
+results <- read_csv("/Users/timwelch/Documents/GitHub/World-Cup/Data/results.csv")
+WorldCups <- read_csv("/Users/timwelch/Documents/GitHub/World-Cup/Data/WorldCups.csv")
 #columns for home win vs. draw vs. away win
 brazil <- results %>%
   mutate(draw = home_score == away_score,
@@ -54,11 +53,6 @@ win_ratio <- brazil_result %>%
   group_by(year) %>%
   summarise(total = sum(result), n = n()) %>%
   mutate(win_ratio = total / n)
-
-#simple visualization
-win_ratio %>%
-  ggplot(aes(x = year, y = win_ratio)) +
-  geom_line()
 
 #Filtering World Cup Results into 
 #wins, runnerups, and thirds to get exact years
@@ -170,7 +164,6 @@ brazil_points <- brazil %>%
 
 #splitting year into it's own column
 brazil_points$year <- year(ymd(brazil_points$Date))
-glimpse(brazil_points)
 
 #calculating rolling averages
 brazil_roll <- brazil_points%>%
@@ -183,14 +176,14 @@ view(brazil_roll)
 
 
 #Creating rolling visualization
-spline_d <- as.data.frame(spline(brazil_roll$year, brazil_roll$win_15))
+spline_d <- as.data.frame(spline(brazil_roll$year, brazil_roll$win_7))
 roll_plot <- spline_d %>%
   ggplot(aes(x = x,
              y = y)) +
   geom_line(color = "blue", size = .2) +
-  theme_economist_white() +
+  theme_bw() +
   labs(title = "Brazil Men's National Football Team  Success", 
-  subtitle = "15 Year Rolling Point Average",
+  subtitle = "7 Year Rolling Point Average",
        x = "Year",
        y = "Point Average")
 
@@ -198,49 +191,49 @@ roll_plot
 
 roll_plot_2 <- roll_plot + 
   geom_segment(x = 1958,
-               y = 2.4,
+               y = 2.45,
                xend = 1958,
                yend = 2.85,
                linetype = "dashed",
                col = "#336600") +
   geom_segment(x = 1962,
-               y = 2.8,
-               xend = 1962,
-               yend = 2.85,
-               linetype = "dashed",
-               col = "#336600" +
-  geom_segment(x = 1970,
-               y = 2.7,
-               xend = 1970,
-               yend = 2.85,
+               y = 2.92,
+               xend = 1961.5,
+               yend = 2.98,
                linetype = "dashed",
                col = "#336600") +
-  geom_segment(x = 1994,
-               y = 2.7,
+  geom_segment(x = 1969.5,
+               y = 2.82,
+               xend = 1970,
+               yend = 2.87,
+               linetype = "dashed",
+               col = "#336600") +
+  geom_segment(x = 1994.5,
+               y = 2.72,
                xend = 1994,
-               yend = 2.85,
+               yend = 2.87,
                linetype = "dashed",
                col = "#336600") +
   geom_segment(x = 2002,
-               y = 2.45,
+               y = 2.59,
                xend = 2002,
-               yend = 2.85,
+               yend = 2.87,
                linetype = "dashed",
                col = "#336600") +
   geom_segment(x = 1950,
                y = 1.95,
                xend = 1950,
-               yend = 2.2,
+               yend = 2.15,
                linetype = "dashed",
                col = "#336600") +
   geom_segment(x = 1998,
-               y = 1.95,
+               y = 1.92,
                xend = 1998,
-               yend = 2,
+               yend = 1.94,
                linetype = "dashed",
                col = "#336600") +
   geom_segment(x = 1978,
-               y = 1.75,
+               y = 1.7,
                xend = 1978,
                yend = 2.1,
                linetype = "dashed",
