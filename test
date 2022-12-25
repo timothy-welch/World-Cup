@@ -1,5 +1,0 @@
-obs <- 100
-soccer <- c(24, 48, 63, 56, 78)
-date <- c("12- 24-22", "12- 22-22", "12- 23-22", "12- 25-22", "12- 26-22")
-df <- as.data.frame(soccer, date)
-install.packages("languageserver")
